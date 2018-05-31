@@ -59,6 +59,7 @@ dashboardPage(
       box(
         title = 'Kredyt 1',
         solidHeader = TRUE,
+        modyfikacja_wyswietlanie_UI('tekst_1'),
         actionButton(inputId = 'dodaj_1', label = 'Dodaj modyfikator'),
         actionButton(inputId = 'modyfikuj_1', label = 'Zmień modyfikatory'),
         actionButton(inputId = 'usun_1', label = 'Usuń modyfikatory')
@@ -66,13 +67,15 @@ dashboardPage(
       box(
         title = 'Kredyt 2',
         solidHeader = TRUE,
+        modyfikacja_wyswietlanie_UI('tekst_2'),
         actionButton(inputId = 'dodaj_2', label = 'Dodaj modyfikator'),
         actionButton(inputId = 'modyfikuj_2', label = 'Zmień modyfikatory'),
         actionButton(inputId = 'usun_2', label = 'Usuń modyfikatory')
       )
     ),
-    fluidRow(plotlyOutput('plot1')),
-    fluidRow(plotlyOutput('plot2')),
-    fluidRow(plotlyOutput('plot3'))
+    fluidRow(tabBox(id = 'tabs',title = '',width = 12,
+                    tabPanel('Raty',plotlyOutput('plot1')),
+                    tabPanel('Różnica',plotlyOutput('plot2')),
+                    tabPanel('Suma różnic',plotlyOutput('plot3'))))
   )
 )

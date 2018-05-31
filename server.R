@@ -248,4 +248,9 @@ server <- function(input, output) {
     
     
   })
+  
+  observe({
+    callModule(modyfikacje_wyswietlanie_server, data = kredyt_1_mods(), id = 'tekst_1')
+    callModule(modyfikacje_wyswietlanie_server, data = kredyt_2_mods(), id = 'tekst_2')
+  })
 }
