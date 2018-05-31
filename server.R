@@ -77,11 +77,11 @@ server <- function(input, output) {
     opl <- kredyt_1_mods()[kredyt_1_mods()$typ == 'opl',]
     
     
-    if (nrow(opr) > 0) {
-      for (i in nrow(opr)/2) {
+    if (!is.null(opr) && (nrow(opr) > 0)) {
+      for (i in 1:(nrow(opr)/2)) {
         rows <- c((i*2)-1, (i*2))
-        
-        value <- unique(opr$mod)
+        print(rows)
+        value <- unique(opr[rows,'mod'])
         
         oprocentowanie[opr[rows[1],'mod_time']:opr[rows[2],'mod_time']] <-
           oprocentowanie[opr[rows[1],'mod_time']:opr[rows[2],'mod_time']] + value
@@ -97,6 +97,17 @@ server <- function(input, output) {
         liczba_rat = 360,
         oprocentowanie = oprocentowanie
       ))
+    
+    if(!is.null(opl) && (nrow(opl) > 0)) {
+      for (i in 1:(nrow(opl)/2)) {
+        rows <- c((i*2)-1, (i*2))
+        
+        value <- unique(opl[rows,'mod'])
+        
+        raty[opl[rows[1],'mod_time']:opl[rows[2],'mod_time'], 'rata'] <-
+          raty[opl[rows[1],'mod_time']:opl[rows[2],'mod_time'],'rata'] + value
+      }
+    }
     
     raty
   })
@@ -173,7 +184,7 @@ server <- function(input, output) {
   })
   
   output$plot2 <- renderPlotly({
-    tmp <- proc1()$rata - proc2()$rata
+    tmp <- proc1_v2()$rata - proc2()$rata
     
     data.frame(lp = 1:60, roznica = tmp) %>%
       ggplot(aes(x = lp, y = roznica)) + geom_line() + geom_point() + theme_minimal() + scale_y_continuous(limits = c(0, NA))
@@ -183,7 +194,7 @@ server <- function(input, output) {
   
   
   output$plot3 <- renderPlotly({
-    tmp <- proc1()$rata - proc2()$rata
+    tmp <- proc1_v2()$rata - proc2()$rata
     
     data.frame(lp = 1:60, roznica = tmp) %>%  mutate(kumul = cumsum(roznica)) %>%
       ggplot(aes(x = lp, y = kumul)) + geom_line() + geom_point() + theme_minimal()

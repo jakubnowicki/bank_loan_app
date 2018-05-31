@@ -14,7 +14,7 @@ dashboardPage(
         value = 1.7,
         min = 0,
         max = 100,
-        step = 1
+        step = 0.1
       ),
       h3('Kredyt 1'),
       numericInput(
@@ -23,7 +23,7 @@ dashboardPage(
         value = 2,
         min = 0,
         max = 100,
-        step = 1
+        step = 0.1
       ),
       numericInput(
         inputId = 'kwota1',
@@ -41,7 +41,7 @@ dashboardPage(
         value = 2,
         min = 0,
         max = 100,
-        step = 1
+        step = 0.1
       ),
       numericInput(
         inputId = 'kwota2',
