@@ -9,6 +9,11 @@ library(shinyBS)
 
 
 server <- function(input, output) {
+  
+  liczba_rat <- reactive({
+    input$lata*12
+  })
+  
   observeEvent(input$dodaj_1, {
     showModal(modalDialog(
       size = 's',
@@ -26,11 +31,11 @@ server <- function(input, output) {
       ),
       div(
         id = 'opr_1',
-        modyfikacja_oprocentowania_UI('modyfikacja_1_opr', typ = 'opr')
+        modyfikacja_oprocentowania_UI('modyfikacja_1_opr', typ = 'opr', zakres = liczba_rat())
       ),
       shinyjs::hidden(div(
         id = 'opl_1',
-        modyfikacja_oprocentowania_UI('modyfikacja_1_opl', typ = 'opl')
+        modyfikacja_oprocentowania_UI('modyfikacja_1_opl', typ = 'opl', zakres = liczba_rat())
       )),
       footer = div(
         actionButton(inputId = 'dodaj_modal_1', label = 'Dodaj'),
@@ -79,7 +84,8 @@ server <- function(input, output) {
   })
   
   proc1_v2 <- reactive({
-    oprocentowanie <- rep(input$oprocentowanie1, times = 60)
+    
+    oprocentowanie <- rep(input$oprocentowanie1, times = liczba_rat())
     
     opr <- kredyt_1_mods()[kredyt_1_mods()$typ == 'opr',]
     opl <- kredyt_1_mods()[kredyt_1_mods()$typ == 'opl',]
@@ -98,11 +104,11 @@ server <- function(input, output) {
     
     oprocentowanie <- (oprocentowanie + input$wibor) / 100
     
-    raty <- data.frame(lp = 1:60, oprocentowanie = oprocentowanie)
+    raty <- data.frame(lp = 1:liczba_rat(), oprocentowanie = oprocentowanie)
     raty <-
       raty %>% mutate(rata = rata(
         kwota = input$kwota1,
-        liczba_rat = 12*input$lata,
+        liczba_rat = liczba_rat(),
         oprocentowanie = oprocentowanie
       ))
     
@@ -138,11 +144,11 @@ server <- function(input, output) {
       ),
       div(
         id = 'opr_2',
-        modyfikacja_oprocentowania_UI('modyfikacja_2_opr', typ = 'opr')
+        modyfikacja_oprocentowania_UI('modyfikacja_2_opr', typ = 'opr', zakres = liczba_rat())
       ),
       shinyjs::hidden(div(
         id = 'opl_2',
-        modyfikacja_oprocentowania_UI('modyfikacja_2_opl', typ = 'opl')
+        modyfikacja_oprocentowania_UI('modyfikacja_2_opl', typ = 'opl', zakres = liczba_rat())
       )),
       footer = div(
         actionButton(inputId = 'dodaj_modal_2', label = 'Dodaj'),
@@ -190,7 +196,7 @@ server <- function(input, output) {
   })
   
   proc2_v2 <- reactive({
-    oprocentowanie <- rep(input$oprocentowanie2, times = 60)
+    oprocentowanie <- rep(input$oprocentowanie2, times = liczba_rat())
     
     opr <- kredyt_2_mods()[kredyt_2_mods()$typ == 'opr',]
     opl <- kredyt_2_mods()[kredyt_2_mods()$typ == 'opl',]
@@ -209,11 +215,11 @@ server <- function(input, output) {
     
     oprocentowanie <- (oprocentowanie + input$wibor) / 100
     
-    raty <- data.frame(lp = 1:60, oprocentowanie = oprocentowanie)
+    raty <- data.frame(lp = 1:liczba_rat(), oprocentowanie = oprocentowanie)
     raty <-
       raty %>% mutate(rata = rata(
         kwota = input$kwota2,
-        liczba_rat = 12*input$lata,
+        liczba_rat = liczba_rat(),
         oprocentowanie = oprocentowanie
       ))
     
@@ -239,18 +245,18 @@ server <- function(input, output) {
     tmp <- rbind(tmp1, tmp2)
     
     
-    tmp %>% as.data.frame() %>% mutate(`miesiąc` = lp) %>%
+    wykres <- tmp %>% as.data.frame() %>% mutate(`miesiąc` = lp) %>%
       ggplot(aes(x = `miesiąc`, y = rata, colour = kredyt)) + geom_line() + geom_point() + theme_minimal() + scale_y_continuous(labels = scales::dollar_format(prefix = '', suffix = ' zł'))
-    
+    ggplotly(wykres) %>% rangeslider(start = 1,end = 60)
   })
   
   
   output$plot2 <- renderPlotly({
     tmp <- proc1_v2()$rata - proc2_v2()$rata
     
-    data.frame(`miesiąc` = 1:60, `różnica` = tmp) %>%
+    wykres <-data.frame(`miesiąc` = 1:liczba_rat(), `różnica` = tmp) %>%
       ggplot(aes(x = `miesiąc`, y = `różnica`)) + geom_line() + geom_point() + theme_minimal() + scale_y_continuous(labels = zloty) + labs(y = paste0('Różnica rat (',nazwa_1(),' - ',nazwa_2(),')'))
-    
+    ggplotly(wykres) %>% rangeslider(start = 1,end = 60)
     
   })
   
@@ -258,9 +264,9 @@ server <- function(input, output) {
   output$plot3 <- renderPlotly({
     tmp <- proc1_v2()$rata - proc2_v2()$rata
     
-    data.frame(`miesiąc` = 1:60, roznica = tmp) %>%  mutate(suma = cumsum(roznica)) %>%
+    wykres <- data.frame(`miesiąc` = 1:liczba_rat(), roznica = tmp) %>%  mutate(suma = cumsum(roznica)) %>%
       ggplot(aes(x = `miesiąc`, y = suma)) + geom_line() + geom_point() + theme_minimal() + scale_y_continuous(labels = zloty)+ labs(y = paste0('Suma różnic rat (',nazwa_1(),' - ',nazwa_2(),')'))
-    
+    ggplotly(wykres) %>% rangeslider(start = 1,end = 60)
     
   })
   

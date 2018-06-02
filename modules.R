@@ -1,5 +1,5 @@
 
-modyfikacja_oprocentowania_UI <- function(id, typ) {
+modyfikacja_oprocentowania_UI <- function(id, typ, zakres) {
   
   ns <- NS(id)
   
@@ -18,8 +18,8 @@ modyfikacja_oprocentowania_UI <- function(id, typ) {
          inputId = ns('mod_time'),
          label = "Czas modyfikacji",
          min = 1,
-         max = 60,
-         value = c(1, 60),
+         max = zakres,
+         value = c(1, zakres),
          step = 1,
          round = T
        )
@@ -40,8 +40,8 @@ modyfikacja_oprocentowania_UI <- function(id, typ) {
           inputId = ns('mod_time'),
           label = "Czas modyfikacji",
           min = 1,
-          max = 60,
-          value = c(1, 60),
+          max = zakres,
+          value = c(1, zakres),
           step = 1,
           round = T
         )
