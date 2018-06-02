@@ -10,16 +10,16 @@ modyfikacja_oprocentowania_UI <- function(id, typ) {
          inputId = ns('mod'),
          label = paste('Modyfikator oprocentowania'),
          value = 0,
-         min = -100,
+         min = 0,
          max = 100,
-         step = 0.1
+         step = 0.01
        ),
        sliderInput(
          inputId = ns('mod_time'),
          label = "Czas modyfikacji",
-         min = 0,
+         min = 1,
          max = 60,
-         value = c(0, 60),
+         value = c(1, 60),
          step = 1,
          round = T
        )
@@ -39,9 +39,9 @@ modyfikacja_oprocentowania_UI <- function(id, typ) {
         sliderInput(
           inputId = ns('mod_time'),
           label = "Czas modyfikacji",
-          min = 0,
+          min = 1,
           max = 60,
-          value = c(0, 60),
+          value = c(1, 60),
           step = 1,
           round = T
         )

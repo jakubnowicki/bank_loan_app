@@ -14,5 +14,7 @@ ifelse_long <- function(condition, yes, no) {
   }
 }
 
+zloty <- scales::dollar_format(prefix = '', suffix = ' zł')
+
 # modules
 source(file = 'modules.R')

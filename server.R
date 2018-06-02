@@ -4,6 +4,7 @@ library(ggplot2)
 library(plotly)
 library(tidyr)
 library(shinyjs)
+library(shinyBS)
 #library(semantic.dashboard)
 
 
@@ -15,6 +16,12 @@ server <- function(input, output) {
         inputId = 'typ_1',
         label = 'Rodzaj modyfikatora',
         choices = list('Oprocentowanie' = 'opr', 'Opłaty' = 'opl'),
+        inline = TRUE
+      ),
+      radioButtons(
+        inputId = 'dodaj_odejmij_1',
+        label = NULL,
+        choices = list('dodaj' = 1, 'odejmij' = -1),selected = 1,
         inline = TRUE
       ),
       div(
@@ -44,22 +51,23 @@ server <- function(input, output) {
   
   kredyt_1_mods <- reactiveVal(NULL)
   
-  observeEvent(input$dodaj_modal_1,{
+  observeEvent(input$dodaj_modal_1, {
     if (input$typ_1 == 'opr') {
-      tmp <- callModule(modyfikacja_oprocentowania_server, id = 'modyfikacja_1_opr')
+      tmp <-
+        callModule(modyfikacja_oprocentowania_server, id = 'modyfikacja_1_opr')
       tmp$typ <- 'opr'
     } else {
-      tmp <- callModule(modyfikacja_oprocentowania_server, id = 'modyfikacja_1_opl')
+      tmp <-
+        callModule(modyfikacja_oprocentowania_server, id = 'modyfikacja_1_opl')
       tmp$typ <- 'opl'
     }
-    
     tmp <- as.data.frame(tmp)
-    
+    tmp$mod <- tmp$mod*as.numeric(input$dodaj_odejmij_1)
     tmp2 <- as.data.frame(kredyt_1_mods())
     
     out <- rbind(tmp2, tmp)
     
-    print(out)
+
     
     kredyt_1_mods(out)
     
@@ -78,13 +86,13 @@ server <- function(input, output) {
     
     
     if (!is.null(opr) && (nrow(opr) > 0)) {
-      for (i in 1:(nrow(opr)/2)) {
-        rows <- c((i*2)-1, (i*2))
+      for (i in 1:(nrow(opr) / 2)) {
+        rows <- c((i * 2) - 1, (i * 2))
         print(rows)
-        value <- unique(opr[rows,'mod'])
+        value <- unique(opr[rows, 'mod'])
         
-        oprocentowanie[opr[rows[1],'mod_time']:opr[rows[2],'mod_time']] <-
-          oprocentowanie[opr[rows[1],'mod_time']:opr[rows[2],'mod_time']] + value
+        oprocentowanie[opr[rows[1], 'mod_time']:opr[rows[2], 'mod_time']] <-
+          oprocentowanie[opr[rows[1], 'mod_time']:opr[rows[2], 'mod_time']] + value
       }
     }
     
@@ -94,18 +102,18 @@ server <- function(input, output) {
     raty <-
       raty %>% mutate(rata = rata(
         kwota = input$kwota1,
-        liczba_rat = 360,
+        liczba_rat = 12*input$lata,
         oprocentowanie = oprocentowanie
       ))
     
-    if(!is.null(opl) && (nrow(opl) > 0)) {
-      for (i in 1:(nrow(opl)/2)) {
-        rows <- c((i*2)-1, (i*2))
+    if (!is.null(opl) && (nrow(opl) > 0)) {
+      for (i in 1:(nrow(opl) / 2)) {
+        rows <- c((i * 2) - 1, (i * 2))
         
-        value <- unique(opl[rows,'mod'])
+        value <- unique(opl[rows, 'mod'])
         
-        raty[opl[rows[1],'mod_time']:opl[rows[2],'mod_time'], 'rata'] <-
-          raty[opl[rows[1],'mod_time']:opl[rows[2],'mod_time'],'rata'] + value
+        raty[opl[rows[1], 'mod_time']:opl[rows[2], 'mod_time'], 'rata'] <-
+          raty[opl[rows[1], 'mod_time']:opl[rows[2], 'mod_time'], 'rata'] + value
       }
     }
     
@@ -120,6 +128,12 @@ server <- function(input, output) {
         inputId = 'typ_2',
         label = 'Rodzaj modyfikatora',
         choices = list('Oprocentowanie' = 'opr', 'Opłaty' = 'opl'),
+        inline = TRUE
+      ),
+      radioButtons(
+        inputId = 'dodaj_odejmij_2',
+        label = NULL,
+        choices = list('dodaj' = 1, 'odejmij' = -1),selected = 1,
         inline = TRUE
       ),
       div(
@@ -149,22 +163,22 @@ server <- function(input, output) {
   
   kredyt_2_mods <- reactiveVal(NULL)
   
-  observeEvent(input$dodaj_modal_2,{
+  observeEvent(input$dodaj_modal_2, {
     if (input$typ_2 == 'opr') {
-      tmp <- callModule(modyfikacja_oprocentowania_server, id = 'modyfikacja_2_opr')
+      tmp <-
+        callModule(modyfikacja_oprocentowania_server, id = 'modyfikacja_2_opr')
       tmp$typ <- 'opr'
     } else {
-      tmp <- callModule(modyfikacja_oprocentowania_server, id = 'modyfikacja_2_opl')
+      tmp <-
+        callModule(modyfikacja_oprocentowania_server, id = 'modyfikacja_2_opl')
       tmp$typ <- 'opl'
     }
     
     tmp <- as.data.frame(tmp)
-    
+    tmp$mod <- tmp$mod*as.numeric(input$dodaj_odejmij_2)
     tmp2 <- as.data.frame(kredyt_2_mods())
     
     out <- rbind(tmp2, tmp)
-    
-    print(out)
     
     kredyt_2_mods(out)
     
@@ -183,13 +197,13 @@ server <- function(input, output) {
     
     
     if (!is.null(opr) && (nrow(opr) > 0)) {
-      for (i in 1:(nrow(opr)/2)) {
-        rows <- c((i*2)-1, (i*2))
+      for (i in 1:(nrow(opr) / 2)) {
+        rows <- c((i * 2) - 1, (i * 2))
         print(rows)
-        value <- unique(opr[rows,'mod'])
+        value <- unique(opr[rows, 'mod'])
         
-        oprocentowanie[opr[rows[1],'mod_time']:opr[rows[2],'mod_time']] <-
-          oprocentowanie[opr[rows[1],'mod_time']:opr[rows[2],'mod_time']] + value
+        oprocentowanie[opr[rows[1], 'mod_time']:opr[rows[2], 'mod_time']] <-
+          oprocentowanie[opr[rows[1], 'mod_time']:opr[rows[2], 'mod_time']] + value
       }
     }
     
@@ -199,42 +213,43 @@ server <- function(input, output) {
     raty <-
       raty %>% mutate(rata = rata(
         kwota = input$kwota2,
-        liczba_rat = 360,
+        liczba_rat = 12*input$lata,
         oprocentowanie = oprocentowanie
       ))
     
-    if(!is.null(opl) && (nrow(opl) > 0)) {
-      for (i in 1:(nrow(opl)/2)) {
-        rows <- c((i*2)-1, (i*2))
+    if (!is.null(opl) && (nrow(opl) > 0)) {
+      for (i in 1:(nrow(opl) / 2)) {
+        rows <- c((i * 2) - 1, (i * 2))
         
-        value <- unique(opl[rows,'mod'])
+        value <- unique(opl[rows, 'mod'])
         
-        raty[opl[rows[1],'mod_time']:opl[rows[2],'mod_time'], 'rata'] <-
-          raty[opl[rows[1],'mod_time']:opl[rows[2],'mod_time'],'rata'] + value
+        raty[opl[rows[1], 'mod_time']:opl[rows[2], 'mod_time'], 'rata'] <-
+          raty[opl[rows[1], 'mod_time']:opl[rows[2], 'mod_time'], 'rata'] + value
       }
     }
     
     raty
   })
-
-
+  
+  
   output$plot1 <- renderPlotly({
-    tmp1 <- proc1_v2() %>% mutate(kredyt = '1')
-    tmp2 <- proc2_v2() %>% mutate(kredyt = '2')
+    tmp1 <- proc1_v2() %>% mutate(kredyt = nazwa_1())
+    tmp2 <- proc2_v2() %>% mutate(kredyt = nazwa_2())
     
     tmp <- rbind(tmp1, tmp2)
     
     
-    tmp %>% as.data.frame() %>%
-      ggplot(aes(x = lp, y = rata, colour = kredyt)) + geom_line() + geom_point() + theme_minimal()
+    tmp %>% as.data.frame() %>% mutate(`miesiąc` = lp) %>%
+      ggplot(aes(x = `miesiąc`, y = rata, colour = kredyt)) + geom_line() + geom_point() + theme_minimal() + scale_y_continuous(labels = scales::dollar_format(prefix = '', suffix = ' zł'))
     
   })
+  
   
   output$plot2 <- renderPlotly({
     tmp <- proc1_v2()$rata - proc2_v2()$rata
     
-    data.frame(lp = 1:60, roznica = tmp) %>%
-      ggplot(aes(x = lp, y = roznica)) + geom_line() + geom_point() + theme_minimal() + scale_y_continuous(limits = c(0, NA))
+    data.frame(`miesiąc` = 1:60, `różnica` = tmp) %>%
+      ggplot(aes(x = `miesiąc`, y = `różnica`)) + geom_line() + geom_point() + theme_minimal() + scale_y_continuous(labels = zloty) + labs(y = paste0('Różnica rat (',nazwa_1(),' - ',nazwa_2(),')'))
     
     
   })
@@ -243,14 +258,78 @@ server <- function(input, output) {
   output$plot3 <- renderPlotly({
     tmp <- proc1_v2()$rata - proc2_v2()$rata
     
-    data.frame(lp = 1:60, roznica = tmp) %>%  mutate(kumul = cumsum(roznica)) %>%
-      ggplot(aes(x = lp, y = kumul)) + geom_line() + geom_point() + theme_minimal()
+    data.frame(`miesiąc` = 1:60, roznica = tmp) %>%  mutate(suma = cumsum(roznica)) %>%
+      ggplot(aes(x = `miesiąc`, y = suma)) + geom_line() + geom_point() + theme_minimal() + scale_y_continuous(labels = zloty)+ labs(y = paste0('Suma różnic rat (',nazwa_1(),' - ',nazwa_2(),')'))
     
     
   })
   
   observe({
-    callModule(modyfikacje_wyswietlanie_server, data = kredyt_1_mods(), id = 'tekst_1')
-    callModule(modyfikacje_wyswietlanie_server, data = kredyt_2_mods(), id = 'tekst_2')
+    callModule(modyfikacje_wyswietlanie_server,
+               data = kredyt_1_mods(),
+               id = 'tekst_1')
+    callModule(modyfikacje_wyswietlanie_server,
+               data = kredyt_2_mods(),
+               id = 'tekst_2')
   })
+  
+  nazwa_1 <- reactiveVal('Kredyt 1')
+  
+  onclick(id = "nazwa_kredyt_1", {
+    showModal(modalDialog(
+      title = 'Nazwa banku 1',
+      textInput(
+        inputId = 'input_nazwa_1',
+        label = '',
+        value = nazwa_1(),
+        placeholder = nazwa_1()
+      ),
+      size = 's',
+      easyClose = T,
+      footer = div(
+        actionButton(inputId = 'dodaj_nazwe_1', label = 'Dodaj'),
+        modalButton('Anuluj')
+      )
+    ))
+  })
+  
+  observeEvent(input$dodaj_nazwe_1, {
+    nazwa_1(input$input_nazwa_1)
+    removeModal()
+  })
+  
+  output$nazwa_1_box_title <- renderText(nazwa_1())
+  
+  output$nazwa_1_title <- renderText(nazwa_1())
+  
+  nazwa_2 <- reactiveVal('Kredyt 2')
+  
+  onclick(id = "nazwa_kredyt_2",  {
+    showModal(modalDialog(
+      title = 'Nazwa banku 2',
+      textInput(
+        inputId = 'input_nazwa_2',
+        label = '',
+        value = nazwa_2(),
+        placeholder = nazwa_2()
+      ),
+      size = 's',
+      easyClose = T,
+      footer = div(
+        actionButton(inputId = 'dodaj_nazwe_2', label = 'Dodaj'),
+        modalButton('Anuluj')
+      )
+    ))
+  })
+  
+  observeEvent(input$dodaj_nazwe_2, {
+    nazwa_2(input$input_nazwa_2)
+    removeModal()
+  })
+  
+  output$nazwa_2_box_title <- renderText(nazwa_2())
+  
+  output$nazwa_2_title <- renderText(nazwa_2())
 }
+
+
