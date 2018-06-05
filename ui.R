@@ -87,6 +87,7 @@ dashboardPage(
     fluidRow(tabBox(id = 'tabs',title = '',width = 12,
                     tabPanel('Raty',plotlyOutput('plot1')),
                     tabPanel('Różnica',plotlyOutput('plot2')),
-                    tabPanel('Suma różnic',plotlyOutput('plot3'))))
+                    tabPanel('Suma różnic',plotlyOutput('plot3')),
+                    tabPanel('Tabela rat', DT::dataTableOutput("tabela_rat"))))
   )
 )

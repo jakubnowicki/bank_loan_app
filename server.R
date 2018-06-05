@@ -5,6 +5,7 @@ library(plotly)
 library(tidyr)
 library(shinyjs)
 library(shinyBS)
+library(DT)
 #library(semantic.dashboard)
 
 
@@ -247,7 +248,7 @@ server <- function(input, output) {
     
     wykres <- tmp %>% as.data.frame() %>% mutate(`miesiąc` = lp) %>%
       ggplot(aes(x = `miesiąc`, y = rata, colour = kredyt)) + geom_line() + geom_point() + theme_minimal() + scale_y_continuous(labels = scales::dollar_format(prefix = '', suffix = ' zł'))
-    ggplotly(wykres) %>% rangeslider(start = 1,end = 60)
+    ggplotly(wykres) %>% rangeslider(start = 1,end = 60, thickness = 0.1, borderwidth = 1)
   })
   
   
@@ -255,8 +256,8 @@ server <- function(input, output) {
     tmp <- proc1_v2()$rata - proc2_v2()$rata
     
     wykres <-data.frame(`miesiąc` = 1:liczba_rat(), `różnica` = tmp) %>%
-      ggplot(aes(x = `miesiąc`, y = `różnica`)) + geom_line() + geom_point() + theme_minimal() + scale_y_continuous(labels = zloty) + labs(y = paste0('Różnica rat (',nazwa_1(),' - ',nazwa_2(),')'))
-    ggplotly(wykres) %>% rangeslider(start = 1,end = 60)
+      ggplot(aes(x = `miesiąc`, y = `różnica`)) + geom_line(colour = 'skyblue3') + geom_point(colour = 'skyblue3') + theme_minimal() + scale_y_continuous(labels = zloty) + labs(y = paste0('Różnica rat (',nazwa_1(),' - ',nazwa_2(),')'))
+    ggplotly(wykres) %>% rangeslider(start = 1,end = 60, thickness = 0.1, borderwidth = 1)
     
   })
   
@@ -265,10 +266,31 @@ server <- function(input, output) {
     tmp <- proc1_v2()$rata - proc2_v2()$rata
     
     wykres <- data.frame(`miesiąc` = 1:liczba_rat(), roznica = tmp) %>%  mutate(suma = cumsum(roznica)) %>%
-      ggplot(aes(x = `miesiąc`, y = suma)) + geom_line() + geom_point() + theme_minimal() + scale_y_continuous(labels = zloty)+ labs(y = paste0('Suma różnic rat (',nazwa_1(),' - ',nazwa_2(),')'))
-    ggplotly(wykres) %>% rangeslider(start = 1,end = 60)
+      ggplot(aes(x = `miesiąc`, y = suma)) + geom_line(colour = 'skyblue3') + geom_point(colour = 'skyblue3') + theme_minimal() + scale_y_continuous(labels = zloty)+ labs(y = paste0('Suma różnic rat (',nazwa_1(),' - ',nazwa_2(),')'))
+    ggplotly(wykres) %>% rangeslider(start = 1,end = 60, thickness = 0.1, borderwidth = 1)
     
   })
+  
+  
+  output$tabela_rat <- DT::renderDataTable(
+    
+    DT::datatable({
+      kolumny <- c('miesiąc',paste0(nazwa_1(),': oprocentowanie'),paste0(nazwa_1(),': rata'),paste0(nazwa_2(),': oprocentowanie'),paste0(nazwa_2(),': rata'))
+      tmp1 <-
+        proc1_v2() %>% transmute(
+          `miesiąc` = lp,
+          oprocentowanie_1 = oprocentowanie,
+          rata_1 = round(rata, 2)
+        )
+      tmp2 <-
+        proc2_v2() %>% transmute(oprocentowanie_2 = oprocentowanie, rata_2 = round(rata, 2))
+      cbind(tmp1, tmp2)
+    }, rownames = FALSE , colnames = kolumny, options = list(
+      lengthMenu = c(12, 24, 36),
+      pageLength = 12,
+      rowId = NULL
+    ))  %>% formatPercentage( ~ oprocentowanie_1 + oprocentowanie_2, 2) %>% formatCurrency( ~ rata_1 + rata_2, currency = ' zł', before = FALSE)
+  )
   
   observe({
     callModule(modyfikacje_wyswietlanie_server,

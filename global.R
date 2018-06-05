@@ -16,5 +16,14 @@ ifelse_long <- function(condition, yes, no) {
 
 zloty <- scales::dollar_format(prefix = '', suffix = ' zł')
 
+if_colour <- function(data, breakpoint, below, over, equal) {
+  if (data == breakpoint) {
+    out <- equal
+  } else {
+    out <- ifelse(data > breakpoint, over, below)
+  }
+  return(out)
+}
+
 # modules
 source(file = 'modules.R')
